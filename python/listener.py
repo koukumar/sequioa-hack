@@ -27,8 +27,8 @@ def netcat():
     dff = pd.DataFrame()
     sensor_freq = 20
     window_size = 3 * sensor_freq
-    while 1:
-    #with SocketIO('127.0.0.1', 3000, LoggingNamespace) as socketIO:
+    #while 1:
+    with SocketIO('127.0.0.1', 3000, LoggingNamespace) as socketIO:
         while 1:
 	    #print "loping"
             data = s.recv(8024)
@@ -83,7 +83,7 @@ def extract_features(df_list):
         f_map["y"].append(agg["state"]+0.1)
 
         agg = ndf.min()
-        f_map["min_acc"].append(agg["acc"])    
+        f_map["min_acc"].append(agg["acc"]) 
         f_map["min_gyro"].append(agg["gyro"])
     return pd.DataFrame(data=f_map)
 
@@ -95,6 +95,8 @@ def predict(df):
     X_scaled = scaler.fit_transform(X)
     y = model.predict(X_scaled)
     print y
+    with SocketIO('127.0.0.1', 3000, LoggingNamespace) as socketIO:
+        socketIO.emit("motion", {"state" : label_names[str(y[0])]})
     return label_names[str(y[0])]
 
 if __name__ == "__main__":
